@@ -5,239 +5,293 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Weight Loss Dashboard</title>
-  https://cdn.jsdelivr.net/npm/plotly.js-dist@2.30.0/plotly.min.js</script>
+
+  <!-- Plotly for charts -->
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.30.0/plotript>
+
+  <!-- Embedded CSS (do not edit outside <style> ... </style>) -->
   <style>
-    header,footer{padding:16px 24px;background:#0b1324;border-bottom:1px solid #1f2937}    :root{--bg:#0f172a;--panel:#111827;--text:#e5e7eb;--accent:#22c55e;--muted:#94a3b8}
+    :root{
+      --bg:#0f172a;          /* page background */
+      --panel:#111827;       /* card background */
+      --text:#e5e7eb;        /* main text */
+      --accent:#22c55e;      /* primary buttons */
+      --muted:#cbd5e1;       /* subtle text */
+      --border:#334155;      /* borders */
+      --tableRow:#0b1220;    /* table row background */
+      --tableHeader:#1f2937; /* table header background */
+      --danger:#ef4444;
+      --warn:#f59e0b;
+      --link:#60a5fa;
+    }
+
+    /* Reset & base */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    header,footer{
+      padding:16px 24px;
+      background:#0b1324;
+      border-bottom:1px solid var(--border);
+    }
     h1{margin:0;font-size:24px}
-    main{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:16px}
-    .card{background:var(--panel);border:1px solid #1f2937;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:12px 0}
-    label{display:flex;flex-direction:column;font-size:14px;color:var(--muted)}
-    input,button{padding:8px;border-radius:8px;border:1px solid #334155;background:#0b1220;color:var(--text)}
-    .btn{background:var(--accent);color:#0b1220;border:none;font-weight:600;cursor:pointer}
-    .btn.btn-secondary{background:#334155;color:#e5e7eb}
-    .chart{height:260px}
-    .note{color:#cbd5e1;font-size:14px}
-    blockquote{margin:0;padding:12px;border-left:4px solid var(--accent);background:#0b1220}
+    main{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+      gap:16px;
+      padding:16px;
+    }
+
+    /* Cards */
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px;
+      box-shadow:0 2px 8px rgba(0,0,0,.35);
+    }
+    .card h2{margin:0 0 8px 0;font-size:18px}
+
+    /* Layout helpers */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:12px;
+      margin:12px 0;
+    }
+    label{
+      display:flex;
+      flex-direction:column;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    /* Inputs & buttons */
+    input,button{
+      padding:10px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:#0b1220;
+      color:var(--text);
+      outline:none;
+    }
+    input[type="checkbox"]{width:20px;height:20px}
+    .btn{
+      background:var(--accent);
+      color:#0b1220;
+      border:1px solid transparent;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btn:hover{filter:brightness(1.05)}
+    .btn.btn-secondary{
+      background:#1f2937;
+      color:var(--text);
+      border:1px solid var(--border);
+    }
+
+    /* Tables */
     table{width:100%;border-collapse:collapse}
-    th,td{border:1px solid #1f2937;padding:6px;text-align:center}
-    details summary{cursor:pointer}
+    thead th{
+      background:var(--tableHeader);
+      color:var(--text);
+      font-weight:700;
+      border-bottom:1px solid var(--border);
+      padding:8px;
+      text-align:center;
+    }
+    tbody td{
+      background:var(--tableRow);
+      border:1px solid var(--border);
+      padding:8px;
+      text-align:center;
+      color:var(--text);
+    }
+    tbody tr:nth-child(even) td{background:#0e1526}
+
+    /* Charts */
+    .chart{height:280px}
+
+    /* Misc */
+    .note{color:var(--muted);font-size:14px}
+    blockquote{
+      margin:0;
+      padding:12px;
+      border-left:4px solid var(--accent);
+      background:#0b1220;
+      color:var(--text);
+    }
+    details summary{cursor:pointer;color:var(--link)}
+    details ul{margin:8px 0 0 16px}
   </style>
 </head>
 <body>
-<header>
-  <h1>Weight Loss Dashboard</h1>
-  <p>Track weight, waist, habits, and consistency. Plan meals & workouts. Stay motivated.</p>
-</header>
+  <header>
+    <h1>Weight Loss Dashboard</h1>
+    <p>Track weight, waist, habits, and consistency. Plan meals & workouts. Stay motivated.</p>
+  </header>
 
-<main>
-  <section class="card">
-    <h2>Weekly Progress</h2>
-    <form id="progress-form">
+  <main>
+    <!-- Weekly Progress -->
+    <section class="card">
+      <h2>Weekly Progress</h2>
+      <form id="progress-form">
+        <div class="grid">
+          <label>Week <input type="number" id="week" min="1" required></label>
+          <label>Weight (kg) <input type="number" id="weight" step="0.1" required></label>
+          <label>Waist (cm) <input type="number" id="waist" step="0.1" required></label>
+          <label>Consistency (1–10) <input type="number" id="consistency" min="1" max="10" required></label>
+        </div>
+        <button type="submit" class="btn">Add / Update</button>
+        <button type="button" id="clear-progress" class="btn btn-secondary">Clear All</button>
+      </form>
+      <div id="progress-table" class="note">No entries yet. Add your first week above.</div>
+      <div id="progress-chart" class="chart"></div>
+    </section>
+
+    <!-- Daily Habits -->
+    <section class="card">
+      <h2>Daily Habit Tracker</h2>
       <div class="grid">
-        <label>Week <input type="number" id="week" min="1" required></label>
-        <label>Weight (kg) <input type="number" id="weight" step="0.1" required></label>
-        <label>Waist (cm) <input type="number" id="waist" step="0.1" required></label>
-        <label>Consistency (1–10) <input type="number" id="consistency" min="1" max="10" required></label>
+        <label>Date <input type="date" id="habit-date"></label>
+        <label>Meal Plan <input type="checkbox" id="habit-meal"></label>
+        <label>Workout <input type="checkbox" id="habit-workout"></label>
+        <label>Water ≥ 2L <input type="checkbox" id="habit-water"></label>
+        <label>Sleep ≥ 7h <input type="checkbox" id="habit-sleep"></label>
+        <label>Mood (1–10) <input type="number" id="habit-mood" min="1" max="10"></label>
       </div>
-      <button type="submit" class="btn">Add / Update</button>
-      <button type="button" id="clear-progress" class="btn btn-secondary">Clear All</button>
-    </form>
-    <div id="progress-table"></div>
-    <div id="progress-chart" class="chart"></div>
-  </section>
+      <button id="habit-add" class="btn">Add Habit Entry</button>
+      <button id="habit-clear" class="btn btn-secondary">Clear Habits</button>
+      <div id="habit-table" class="note">No habit entries yet.</div>
+    </section>
 
-  <section class="card">
-    <h2>Daily Habit Tracker</h2>
-    <div class="grid">
-      <label>Date <input type="date" id="habit-date"></label>
-      <label>Meal Plan <input type="checkbox" id="habit-meal"></label>
-      <label>Workout <input type="checkbox" id="habit-workout"></label>
-      <label>Water ≥ 2L <input type="checkbox" id="habit-water"></label>
-      <label>Sleep ≥ 7h <input type="checkbox" id="habit-sleep"></label>
-      <label>Mood (1–10) <input type="number" id="habit-mood" min="1" max="10"></label>
-    </div>
-    <button id="habit-add" class="btn">Add Habit Entry</button>
-    <button id="habit-clear" class="btn btn-secondary">Clear Habits</button>
-    <div id="habit-table"></div>
-  </section>
+    <!-- Meal Plan -->
+    <section class="card">
+      <h2>Meal Plan Overview (1,800 kcal / 120g+ protein)</h2>
+      <div id="meal-plan"></div>
+      <button id="download-meal" class="btn">Download Meal Plan (CSV)</button>
+    </section>
 
-  <section class="card">
-    <h2>Meal Plan Overview (1,800 kcal / 120g+ protein)</h2>
-    <div id="meal-plan"></div>
-    <button id="download-meal" class="btn">Download Meal Plan (CSV)</button>
-  </section>
+    <!-- Workout Plan -->
+    <section class="card">
+      <h2>Workout Schedule (4 days)</h2>
+      <div id="workout-plan"></div>
+      <button id="download-workout" class="btn">Download Workout (CSV)</button>
+    </section>
 
-  <section class="card">
-    <h2>Workout Schedule (4 days)</h2>
-    <div id="workout-plan"></div>
-    <button id="download-workout" class="btn">Download Workout (CSV)</button>
-  </section>
+    <!-- Sunday Review -->
+    <section class="card">
+      <h2>Sunday Review & Adjustments</h2>
+      <div id="review-guidance" class="note">Add at least two weeks of progress to see tailored guidance.</div>
+    </section>
 
-  <section class="card">
-    <h2>Sunday Review & Adjustments</h2>
-    <div id="review-guidance" class="note"></div>
-  </section>
+    <!-- Motivation -->
+    <section class="card">
+      <h2>Motivation</h2>
+      <blockquote>
+        “I am committed, strong, and consistent. Every choice today brings me closer to the best version of myself.”
+      </blockquote>
+      <details>
+        <summary>10 Low‑Calorie Snacks (&lt;200 kcal)</summary>
+        <ul>
+          <li>Frozen grapes (150 g)</li>
+          <li>Air‑popped popcorn (3 cups)</li>
+          <li>Low‑fat Greek yogurt + cinnamon (150 g)</li>
+          <li>Apple slices + cinnamon</li>
+          <li>Watermelon cubes (300 g)</li>
+          <li>Strawberries (250 g)</li>
+          <li>Sugar‑free gelatin (1 cup)</li>
+          <li>Carrot sticks + 2 tbsp hummus</li>
+          <li>Rice cakes (2) + sugar‑free jam</li>
+          <li>Chia pudding (unsweetened almond milk)</li>
+        </ul>
+      </details>
+    </section>
+  </main>
 
-  <section class="card">
-    <h2>Motivation</h2>
-    <blockquote>“I am committed, strong, and consistent. Every choice today brings me closer to the best version of myself.”</blockquote>
-    <details>
-      <summary>10 Low‑Calorie Snacks (&lt;200 kcal)</summary>
-      <ul>
-        <li>Frozen grapes (150 g)</li><li>Air‑popped popcorn (3 cups)</li><li>Low‑fat Greek yogurt + cinnamon (150 g)</li>
-        <li>Apple slices + cinnamon</li><li>Watermelon cubes (300 g)</li><li>Strawberries (250 g)</li>
-        <li>Sugar‑free gelatin (1 cup)</li><li>Carrot sticks + 2 tbsp hummus</li><li>Rice cakes (2) + sugar‑free jam</li>
-        <li>Chia pudding (unsweetened almond milk)</li>
-      </ul>
-    </details>
-  </section>
-</main>
+  <footer>
+    <p>Built for Ananda | HCL Regional Portfolio Owner – Muscat</p>
+  </footer>
 
-<footer><p>Built for Ananda | HCL Regional Portfolio Owner – Muscat</p></footer>
+  <!-- Embedded JS (do not edit outside <script> ... </script>) -->
+  <script>
+    // Helpers
+    const getData = (key, fallback=[]) => {
+      try { return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback)); }
+      catch(e){ return fallback; }
+    };
+    const setData = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-<script>
-  // Storage helpers
-  const getData = (key, fallback=[]) => JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback));
-  const setData = (key, val) => localStorage.setItem(key, JSON.stringify(val));
+    /* ---------- Weekly Progress ---------- */
+    const progressForm = document.getElementById('progress-form');
+    const progressTableDiv = document.getElementById('progress-table');
+    const progressChartDiv = document.getElementById('progress-chart');
 
-  // Weekly Progress
-  const progressForm = document.getElementById('progress-form');
-  const progressTableDiv = document.getElementById('progress-table');
-  const progressChartDiv = document.getElementById('progress-chart');
+    function renderProgress(){
+      const rows = getData('progress');
+      if(rows.length===0){
+        progressTableDiv.innerHTML = '<p class="note">No entries yet. Add your first week above.</p>';
+        if(window.Plotly) Plotly.purge(progressChartDiv);
+        return;
+      }
+      const tableHtml = `
+        <table>
+          <thead><tr><th>Week</th><th>Weight (kg)</th><th>Waist (cm)</th><th>Consistency</th></tr></thead>
+          <tbody>${rows.map(r => `
+            <tr><td>${r.week}</td><td>${r.weight}</td><td>${r.waist}</td><td>${r.consistency}</td></tr>
+          `).join('')}</tbody>
+        </table>`;
+      progressTableDiv.innerHTML = tableHtml;
 
-  function renderProgress(){
-    const rows = getData('progress');
-    if(rows.length===0){
-      progressTableDiv.innerHTML='<p class="note">No entries yet. Add your first week above.</p>';
-      if (window.Plotly) Plotly.purge(progressChartDiv);
-      return;
+      const weeks = rows.map(r=>r.week);
+      const weights = rows.map(r=>r.weight);
+      const waists = rows.map(r=>r.waist);
+      const consistency = rows.map(r=>r.consistency);
+      Plotly.newPlot(progressChartDiv,[
+        {x:weeks,y:weights,name:'Weight',mode:'lines+markers',line:{color:'#60a5fa'}},
+        {x:weeks,y:waists,name:'Waist',mode:'lines+markers',line:{color:'#f59e0b'}},
+        {x:weeks,y:consistency,name:'Consistency',mode:'lines+markers',line:{color:'#22c55e'},yaxis:'y2'}
+      ],{
+        paper_bgcolor:'#0f172a',
+        plot_bgcolor:'#0f172a',
+        font:{color:'#e5e7eb'},
+        margin:{t:10,r:10,b:40,l:40},
+        yaxis:{title:'kg/cm'},
+        yaxis2:{overlaying:'y',side:'right',title:'1–10'}
+      },{displayModeBar:false});
     }
-    const tableHtml = `<table><thead><tr><th>Week</th><th>Weight (kg)</th><th>Waist (cm)</th><th>Consistency</th></tr></thead><tbody>${
-      rows.map(r=>`<tr><td>${r.week}</td><td>${r.weight}</td><td>${r.waist}</td><td>${r.consistency}</td></tr>`).join('')
-    }</tbody></table>`;
-    progressTableDiv.innerHTML = tableHtml;
 
-    const weeks = rows.map(r=>r.week);
-    const weights = rows.map(r=>r.weight);
-    const waists = rows.map(r=>r.waist);
-    const consistency = rows.map(r=>r.consistency);
-    const layout = {paper_bgcolor:'#0f172a',plot_bgcolor:'#0f172a',font:{color:'#e5e7eb'},margin:{t:10,r:10,b:40,l:40}};
-    Plotly.newPlot(progressChartDiv,[
-      {x:weeks,y:weights,name:'Weight',mode:'lines+markers',line:{color:'#60a5fa'}},
-      {x:weeks,y:waists,name:'Waist',mode:'lines+markers',line:{color:'#f59e0b'}},
-      {x:weeks,y:consistency,name:'Consistency',mode:'lines+markers',line:{color:'#22c55e'},yaxis:'y2'}
-    ],{...layout,yaxis:{title:'kg/cm'},yaxis2:{overlaying:'y',side:'right',title:'1–10'}},{displayModeBar:false});
-  }
+    progressForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const week = parseInt(document.getElementById('week').value);
+      const weight = parseFloat(document.getElementById('weight').value);
+      const waist = parseFloat(document.getElementById('waist').value);
+      const consistency = parseInt(document.getElementById('consistency').value);
+      let rows = getData('progress');
+      const idx = rows.findIndex(r=>r.week===week);
+      const entry = {week,weight,waist,consistency};
+      if(idx>-1){ rows[idx]=entry; } else { rows.push(entry); rows.sort((a,b)=>a.week-b.week); }
+      setData('progress', rows);
+      renderProgress();
+      progressForm.reset();
+    });
 
-  progressForm.addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const week = parseInt(document.getElementById('week').value);
-    const weight = parseFloat(document.getElementById('weight').value);
-    const waist = parseFloat(document.getElementById('waist').value);
-    const consistency = parseInt(document.getElementById('consistency').value);
-    let rows = getData('progress');
-    const idx = rows.findIndex(r=>r.week===week);
-    const entry = {week,weight,waist,consistency};
-    if(idx>-1){rows[idx]=entry;} else {rows.push(entry); rows.sort((a,b)=>a.week-b.week);}
-    setData('progress', rows);
-    renderProgress();
-    progressForm.reset();
-  });
-  document.getElementById('clear-progress').onclick = ()=>{localStorage.removeItem('progress'); renderProgress();};
+    document.getElementById('clear-progress').onclick = ()=>{
+      localStorage.removeItem('progress'); renderProgress();
+    };
 
-  // Habit Tracker
-  const habitTableDiv = document.getElementById('habit-table');
-  function renderHabits(){
-    const rows = getData('habits');
-    if(rows.length===0){habitTableDiv.innerHTML='<p class="note">No habit entries yet.</p>'; return;}
-    habitTableDiv.innerHTML = `<table><thead><tr><th>Date</th><th>Meal</th><th>Workout</th><th>Water</th><th>Sleep</th><th>Mood</th></tr></thead><tbody>${
-      rows.map(r=>`<tr><td>${r.date}</td><td>${r.meal?'✅':'❌'}</td><td>${r.workout?'✅':'❌'}</td><td>${r.water?'✅':'❌'}</td><td>${r.sleep?'✅':'❌'}</td><td>${r.mood}</td></tr>`).join('')
-    }</tbody></table>`;
-  }
-  document.getElementById('habit-add').onclick = ()=>{
-    const date = document.getElementById('habit-date').value || new Date().toISOString().slice(0,10);
-    const meal = document.getElementById('habit-meal').checked;
-    const workout = document.getElementById('habit-workout').checked;
-    const water = document.getElementById('habit-water').checked;
-    const sleep = document.getElementById('habit-sleep').checked;
-    const mood = parseInt(document.getElementById('habit-mood').value||'0');
-    const rows = getData('habits');
-    rows.push({date,meal,workout,water,sleep,mood});
-    setData('habits', rows);
-    renderHabits();
-  };
-  document.getElementById('habit-clear').onclick = ()=>{localStorage.removeItem('habits'); renderHabits();};
-
-  // Meal Plan
-  const mealPlanDiv = document.getElementById('meal-plan');
-  const mealData = [
-    {day:'1', breakfast:'Greek yogurt + whey + berries', lunch:'Paneer + quinoa', dinner:'Tofu stir‑fry + brown rice'},
-    {day:'2', breakfast:'Overnight oats + whey', lunch:'Lentil curry + brown rice + salad', dinner:'Paneer tikka + veggies'},
-    {day:'3', breakfast:'Smoothie (spinach + almond milk + whey + chia)', lunch:'Chickpea salad', dinner:'Tofu curry + quinoa'},
-    {day:'4', breakfast:'Greek yogurt + whey', lunch:'Edamame + veggie bowl', dinner:'Paneer bhurji + brown rice'},
-    {day:'5', breakfast:'Oats + yogurt + cinnamon', lunch:'Lentil stew + salad', dinner:'Tofu stir‑fry + quinoa'},
-    {day:'6', breakfast:'Smoothie + chia', lunch:'Chickpeas + veggies', dinner:'Paneer tikka + salad'},
-    {day:'7', breakfast:'Greek yogurt + whey', lunch:'Lentils + brown rice', dinner:'Tofu curry + veggies'}
-  ];
-  mealPlanDiv.innerHTML = `<table><thead><tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr></thead><tbody>${
-    mealData.map(m=>`<tr><td>${m.day}</td><td>${m.breakfast}</td><td>${m.lunch}</td><td>${m.dinner}</td></tr>`).join('')
-  }</tbody></table>`;
-  document.getElementById('download-meal').onclick = ()=>{
-    const csv = 'Day,Breakfast,Lunch,Dinner\n'+mealData.map(m=>`${m.day},"${m.breakfast}","${m.lunch}","${m.dinner}"`).join('\n');
-    const blob = new Blob([csv], {type:'text/csv'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'meal_plan.csv'; a.click();
-  };
-
-  // Workout Plan
-  const workoutPlanDiv = document.getElementById('workout-plan');
-  const workoutData = [
-    {day:'Mon', plan:'Lower Body + Core (25–35 min)'},
-    {day:'Tue', plan:'Upper Body + Core (25–35 min)'},
-    {day:'Thu', plan:'Mobility + Conditioning (25–35 min)'},
-    {day:'Sat', plan:'Full Body + HIIT (25–35 min)'}
-  ];
-  workoutPlanDiv.innerHTML = `<table><thead><tr><th>Day</th><th>Workout</th></tr></thead><tbody>${
-    workoutData.map(w=>`<tr><td>${w.day}</td><td>${w.plan}</td></tr>`).join('')
-  }</tbody></table>`;
-  document.getElementById('download-workout').onclick = ()=>{
-    const csv = 'Day,Workout\n'+workoutData.map(w=>`${w.day},"${w.plan}"`).join('\n');
-    const blob = new Blob([csv], {type:'text/csv'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'workout_plan.csv'; a.click();
-  };
-
-  // Sunday Review Guidance
-  const reviewDiv = document.getElementById('review-guidance');
-  function guidance(){
-    const rows = getData('progress');
-    if(rows.length<2){reviewDiv.textContent='Add at least two weeks of progress to see tailored guidance.'; return;}
-    const last = rows[rows.length-1];
-    const prev = rows[rows.length-2];
-    const dW = last.weight - prev.weight;
-    const dWaist = last.waist - prev.waist;
-    let msg = '';
-    if(dW < -0.5){ msg += 'Great pace: keep calories and training as‑is. '; }
-    else if (dW > 0.2){ msg += 'Weight increased: reduce calories by 100–150 kcal and add a 10‑min HIIT finisher twice this week. '; }
-    else { msg += 'Slight change: maintain or tighten meal quality (more veggies, fewer refined carbs). '; }
-    if(dWaist >= 0){ msg += 'Waist not shrinking: add plyometrics to Days 1 & 4, shorten rest to 45s.'; }
-    else { msg += 'Waist trending down: keep intensity steady.'; }
-    if(last.consistency < 7){ msg += ' Focus on consistency: pre‑log meals, set reminders, simplify snacks.'; }
-    reviewDiv.textContent = msg;
-  }
-
-  function renderHabits(){
-    const rows = getData('habits');
+    /* ---------- Habit Tracker ---------- */
     const habitTableDiv = document.getElementById('habit-table');
-    if(rows.length===0){habitTableDiv.innerHTML='<p class="note">No habit entries yet.</p>'; return;}
-    habitTableDiv.innerHTML = `<table><thead><tr><th>Date</th><th>Meal</th><th>Workout</th><th>Water</th><th>Sleep</th><th>Mood</th></tr></thead><tbody>${
-      rows.map(r=>`<tr><td>${r.date}</td><td>${r.meal?'✅':'❌'}</td><td>${r.workout?'✅':'❌'}</td><td>${r.water?'✅':'❌'}</td><td>${r.sleep?'✅':'❌'}</td><td>${r.mood}</td></tr>`).join('')
-    }</tbody></table>`;
-  }
-
-  function init(){ renderProgress(); renderHabits(); guidance(); }
-  document.addEventListener('DOMContentLoaded', init);
-</script>
-</body>
-</html>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
+    function renderHabits(){
+      const rows = getData('habits');
+      if(rows.length===0){ habitTableDiv.innerHTML='<p class="note">No habit entries yet.</p>'; return; }
+      habitTableDiv.innerHTML = `
+        <table>
